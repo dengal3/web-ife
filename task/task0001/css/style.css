@@ -19,14 +19,19 @@ dt {
   text-decoration: none;
 }
 
+ul {
+  list-style: none;
+}
+
 header {
   position: relative;
   height: 80px;
-  background: rgba(48, 86, 41, .4);
+  background: rgba(48, 86, 41, .5);
 }
 
 .panel,
-.container {
+.container,
+.wrap {
   margin: auto;
   position: relative;
   width: 980px;
@@ -220,4 +225,75 @@ footer > .copy-right {
     display: block;
     padding-top: 10px;
     margin: auto;
+  }
+
+.wrap {
+  position: relative;
+}
+.wrap:after {
+    content: ",";
+    clear: both;
+    display: block;
+    visibility: none;
+}
+
+  .wrap > .article {
+    float: left;
+    margin: 20px 10px 50px 0;
+    width: 710px;
+  }
+    .wrap > .article > .section {
+        position: relative;
+        padding: 20px;
+        margin: 0 0 20px 0;
+        background-color: #fff;
+    }
+        .wrap > .article > .section > .info {
+            position: absolute;
+            left: -50px;
+            width: 50px;
+        }
+            .wrap .info > .cate {
+                padding: 10px;
+                text-align: center;
+                background-color: rgba(48, 86, 41, .5);
+                color: #fff;
+            }
+            .wrap .info > .date {
+                padding: 10px;
+                text-align: center;
+                background-color: rgba(48, 86, 41, .3);
+                color: #fff;
+            }
+        .wrap > .article > .section > h3 {
+            font-size: 16px;
+            color: #306029; 
+        }
+        .wrap > .article > .section > h4 {
+            line-height: 30px;
+            font-size: 12px;
+            color: #666; 
+        }
+        .wrap > .article > .section > p {
+            line-height: 180%;
+            text-indent: 2em;
+            font-size: 12px;
+        }
+        .wrap > .article > .section > .article-info {
+            margin-top: 20px;
+            text-align: right;
+            color: #666;
+        }
+    .wrap > .article > ul.page {
+        text-align: center;
+    }
+        .wrap > .article > ul.page li {
+            display: inline-block;
+            line-height: 0.5em;
+            padding: 1em;
+            background-color: #fff;
+        }
+  .wrap .aside {
+    float: left;
+    width: 260px;
   }
