@@ -228,6 +228,7 @@ footer > .copy-right {
   }
 
 .wrap {
+    margin-top: 20px;
   position: relative;
 }
 .wrap:after {
@@ -239,7 +240,7 @@ footer > .copy-right {
 
   .wrap > .article {
     float: left;
-    margin: 20px 10px 50px 0;
+    margin: 0 10px 50px 0;
     width: 710px;
   }
     .wrap > .article > .section {
@@ -293,7 +294,51 @@ footer > .copy-right {
             padding: 1em;
             background-color: #fff;
         }
-  .wrap .aside {
+  .wrap > .aside {
     float: left;
     width: 260px;
   }
+    .wrap > .aside > .search {
+        width: 100%;
+        margin: 0px 0 10px 0;
+        padding: 20px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+        .wrap > .aside > .search > .search-input {
+            float: left;
+            width: 75%;
+            height: 30px;
+            border: 1px solid #ddd;
+        }
+        .wrap > .aside > .search > .submit {
+            display: inline-block;
+            float: left;
+            width: 25%;
+            height: 30px;
+            margin-right: -999px;
+            line-height: 30px;
+            border: 1px solid #ddd;
+            color: #fff;
+            font-size: 20px;
+            background-color: #ddd;
+            text-align: center;
+        }
+    .wrap > .aside > .category li > a {
+        display: block;
+        line-height: 40px;
+        padding-left: 10px;
+        border-left: 3px solid #eee;
+        color: #aaa;
+        font-size: 1.2em;
+        background-color: #fff;
+
+        transition: all .6s;
+    }
+    .wrap > .aside > .category li.active > a,
+    .wrap > .aside > .category li > a:hover
+     {
+        border-left: 3px solid #306029;
+
+        transition: all .6s;
+    }
