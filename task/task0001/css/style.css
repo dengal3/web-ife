@@ -392,3 +392,88 @@ footer > .copy-right {
         color: #306029;
     }
 
+    .about.container {
+        overflow: hidden;
+    }
+
+    .about.container .wrapper {
+        margin: 100px -50px 0 0;
+    }
+
+/*    .about.container .wrapper:after {
+        content: ",";
+        display: block;
+        clear: both;
+        visibility: none;
+    }
+*/
+    .about.container .wrapper > div {
+        width: 485px;
+        min-height: 800px;
+        float: left;
+        background-color: #fff;
+        margin-right: 10px;
+        padding-bottom: 9999px;
+        margin-bottom: -9999px;
+    }
+
+    .about.container .wrapper > .left:after {
+        content: "1";
+        display: block;
+        visibility: hidden;
+    }
+    .about.container .wrapper .right > div {
+        margin-bottom: 8em;
+    }
+        .about.container img {
+            display: block;
+            width: 100px;
+            height: 100px;
+            /*position: absolute;
+            left: -55px;*/
+            margin-left: -55px;
+            margin-top: -50px;
+            border-radius: 50%;
+            border: 10px solid #eee;
+        }
+
+        .about.container .logo {
+            width: 150px;
+            height: 150px;
+            margin-left: -80px;
+            margin-top: -75px;
+        }
+
+        .about.container .wrapper h3 {
+            margin-left: -150px;
+            padding: 1.5em;
+        }
+
+        .about.container .wrapper p {
+            margin-top: -6em;
+            padding: 1em 10em 1em 3em;
+            text-indent: 2em;
+            line-height: 1.5em;
+        }
+        .about.container .wrapper .contactme span {
+            display: block;
+        }
+        .about.container .wrapper .education > div {
+            margin: 0px 0 20px 0;
+        }
+        .about.container .wrapper .education span {
+            display: inline-block;
+            padding: 0 20px 0 20px;
+        }
+        .about.container .wrapper .time-tag {
+            display: inline-block;
+            width: 60px;
+            height: 40px;
+            line-height: 30px;
+            margin-left: -35px;
+            border: 5px solid #eee;
+            border-radius: 25%;
+            background-color: #fff;
+            text-align: center;
+            vertical-align: baseline;
+        }
