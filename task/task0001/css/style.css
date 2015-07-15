@@ -477,3 +477,63 @@ footer > .copy-right {
             text-align: center;
             vertical-align: baseline;
         }
+
+.wrap > .article > .menu li {
+    display: inline;
+    padding: 15px 20px 20px 20px;
+    border-top: 2px solid #306029;
+    background-color: #fff;
+}
+
+.wrap > .article > .gallery {
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.wrap > .article > .gallery:after {
+    content: ",";
+    clear: both;
+    display: block;
+    visibility: hidden;
+}
+
+.wrap .gallery > .item {
+    float: left;
+    margin-left: 10px;
+    width: 25%;
+}
+.wrap .gallery > .item > img {
+    display: inline-block;
+    float: left;
+    width: 100%;
+}
+
+.wrap .gallery > .item > .text {
+    float: left;
+    background-color: #306029;
+    color: #fff;
+}
+
+.wrap .gallery > .item > .text .left {
+    width: 20%;
+    height: 100%;
+    float: left;
+    padding-top: 5%;
+    text-align: center;
+}
+
+.wrap .gallery > .item > .text span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #fff;
+    border-radius: 50%;
+}
+
+.wrap .gallery > .item > .text .right {
+    width: 80%;
+    height: 100%;
+    padding: 5%;
+    float: right;
+}
