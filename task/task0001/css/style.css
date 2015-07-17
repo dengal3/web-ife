@@ -487,7 +487,7 @@ footer > .copy-right {
 
 .wrap > .article > .gallery {
     width: 100%;
-    padding: 20px;
+    padding: 20px 10px 20px 10px;
     background-color: #fff;
 }
 
@@ -498,32 +498,57 @@ footer > .copy-right {
     visibility: hidden;
 }
 
-.wrap .gallery > .item {
+.wrap > .article > .gallery .col {
+    width: 170px;
+    float: left;
+}
+
+.wrap > .article > .gallery .col.large {
+    width: 340px;
+    float: left;
+}
+
+
+.wrap .gallery .item {
     float: left;
     margin-left: 10px;
-    width: 25%;
+    width: 160px;
 }
-.wrap .gallery > .item > img {
+
+.wrap .gallery .item:after {
+    content: ",";
+    display: block;
+    clear: both;
+    visibility: hidden;
+}
+
+.wrap .gallery .item.large {
+    width: 330px;
+}
+
+.wrap .gallery .item > img {
     display: inline-block;
     float: left;
     width: 100%;
 }
 
-.wrap .gallery > .item > .text {
+.wrap .gallery .item > .text {
     float: left;
+    width: 100%;
     background-color: #306029;
     color: #fff;
 }
 
-.wrap .gallery > .item > .text .left {
-    width: 20%;
+.wrap .gallery .item > .text .left {
+    width: 40px;
     height: 100%;
     float: left;
-    padding-top: 5%;
+    padding-top: 10px;
+    margin-left: -100%;
     text-align: center;
 }
 
-.wrap .gallery > .item > .text span {
+.wrap .gallery .item > .text span {
     display: inline-block;
     width: 20px;
     height: 20px;
@@ -531,9 +556,9 @@ footer > .copy-right {
     border-radius: 50%;
 }
 
-.wrap .gallery > .item > .text .right {
-    width: 80%;
+.wrap .gallery .item > .text .right {
+    width: 100%;
     height: 100%;
-    padding: 5%;
-    float: right;
+    padding: 10px 10px 10px 40px;
+    float: left;
 }
