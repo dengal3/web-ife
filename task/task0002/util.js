@@ -145,3 +145,42 @@ function getPosition(element) {
 
     return {x: x, y: y};
 }
+
+// 实现一个简单的Query
+function $(selector) {
+    var querys = selector.split(/\s+/g);
+    var parent = document.getElementsByTagName("body")[0];
+
+    for (var i = 0; i < querys.length; i++) {
+        if(/^#.+/g.test(querys[i])) {
+            parent = document.getElementById(querys[i].slice(1));
+        } else if (/^w+/g.test(querys[i])) {
+            parent = parent.getElementsByTagName(querys[i]);
+        } else if (/^\.(\w|\d|-|_)+/g.test(querys[i])) {
+            parent = parent.getElementsByClassName(querys[i].slice(1));
+        } else if (/^\[(\w|-|=)+\]$/g.test(querys[i])) {
+            var childNodes = parent.childNodes;
+            parent = [];
+            var indexOfEqu = querys[i].replace(/\s/g, '').indexOf('=');
+
+            if (indexOfEqu == -1) {
+                for (var j = 0; j < childNodes.length; j++) {
+                    if (childNodes[j].getAttribute(querys[i].slice(1, indexOfEqu))) {
+                        parent.push(childNodes[j]);
+                    }
+                }
+            } else {
+                for (var j = 0; j < childNodes.length; j++) {
+                    if (childNodes[j].getAttribute(querys[i].slice(1, indexOfEqu)) === querys[i].slice(indexOfEqu+1, -1)) {
+                        
+                        parent.push(childNodes[j]);
+                    }
+                }
+            }
+        } else {
+            console.error("invalid query");
+        }
+    }
+
+    return parent;
+}
