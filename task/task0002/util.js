@@ -184,3 +184,44 @@ function $(selector) {
 
     return parent;
 }
+
+$.on = function(element, event, listener) {
+    if(element.addEventListener) {
+        element.addEventListener(event, listener, false);
+    } else if (element.attachEvent) {
+        element.attachEvent("on"+event, listener)
+    } else {
+        element["on"+event] = listener;
+    }
+}
+
+$.un = function(element, event, listener) {
+    if(element.removeEventListener) {
+        element.addEventListener(event, listener, false);
+    } else if (element.detachEvent) {
+        element.detachEvent("on"+event, listener)
+    } else {
+        element["on"+event] = null;
+    }
+}
+
+$.click = function(element, listener) {
+    $.on(element, 'click'. listener);
+}
+
+$.enter = function(element, listener) {
+    $.on(element, 'keydown', function(event) {
+        var event = event || window.event;
+        if(event.keyCode == 13)
+            listener();
+    });
+}
+
+$.delegateEvent = function(element, tag, eventName, listener) {
+    element.onclick = function(event) {
+        var event = event || window.event;
+        var target = event.target || event.srcElement;
+        if (target.tagName.toLowerCase() == tag)
+            listener(target);
+    }
+}
