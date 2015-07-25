@@ -225,3 +225,64 @@ $.delegateEvent = function(element, tag, eventName, listener) {
             listener(target);
     }
 }
+
+function isIE(){
+    return navigator.appCodeName == "IE" ? navigator.appVersion: -1;
+}
+
+function setCookie(cookieName, cookieValue, expiredays) {
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() + expiredays);
+    document.cookie = cookieName + "=" + escape(cookieValue) + ((expiredays == null)? "" : ";expires=" + exdate.toGMTString());
+}
+
+function getCookie(cookieName) {
+    if (document.cookie.length > 0) {
+        var start = document.cookie.indexOf(cookieName + "=");
+        start = start+cookieName.length+1;
+        var end = document.cookie.indexOf(';', start);
+        return document.cookie.substring(start, end);
+    }
+}
+
+function ajax(url, options) {
+    if(window.ActiveXObject) {// IE浏览器
+        xmlHttpRequest = new ActiveXObject("Microsoft.XMLHTTP");
+    } else if(window.XMLHttpRequest) { // 除IE以外的其他浏览器
+        xmlHttpRequest = new XMLHttpRequest();
+    }
+
+    if(xmlHttpRequest != null) {
+            
+        // 准备向服务器发出一个请求
+        var data = "";
+        for (var key in options.data) {
+            data += key + "=" + options.data[key] + '&';
+        }
+        data = data.slice(0, -1);
+
+        /*
+         * GET方式向服务器发出一个请求
+         * xmlHttpRequest.open("GET", "AjaxServlet?v1=" + v1 + "&v2=" + v2, true);
+         */
+        if (options.type.toUpperCase() == "GET") {    
+            xmlHttpRequest.open(options.type.toUpperCase(), url+'?'+data, true);
+            xmlHttpRequest.onreadystatechange = options.onsuccess;
+            xmlHttpRequest.send(null);
+        } else {
+            xmlHttpRequest.open(options.type.toUpperCase(), url, true);
+             /*
+              * POST方式向服务器发出一个请求
+              */
+            
+            // 当发生状态变化时就调用这个回调函数
+            xmlHttpRequest.onreadystatechange = options.onsuccess;
+            
+            // 使用post提交时必须加上下面这行代码
+            xmlHttpRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+            
+            // 向服务器发出一个请求
+            xmlHttpRequest.send(data);    
+        }
+    }
+}
