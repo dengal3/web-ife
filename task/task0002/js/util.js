@@ -165,13 +165,13 @@ function $(selector) {
 
             if (indexOfEqu == -1) {
                 for (var j = 0; j < childNodes.length; j++) {
-                    if (childNodes[j].getAttribute(querys[i].slice(1, indexOfEqu))) {
+                    if (childNodes[j].nodeType != 3 && childNodes[j].getAttribute(querys[i].slice(1, indexOfEqu))) {
                         parent.push(childNodes[j]);
                     }
                 }
             } else {
                 for (var j = 0; j < childNodes.length; j++) {
-                    if (childNodes[j].getAttribute(querys[i].slice(1, indexOfEqu)) === querys[i].slice(indexOfEqu+1, -1)) {
+                    if (childNodes[j].nodeType != 3 && childNodes[j].getAttribute(querys[i].slice(1, indexOfEqu)) === querys[i].slice(indexOfEqu+1, -1)) {
                         
                         parent.push(childNodes[j]);
                     }
@@ -206,7 +206,7 @@ $.un = function(element, event, listener) {
 }
 
 $.click = function(element, listener) {
-    $.on(element, 'click'. listener);
+    $.on(element, 'click', listener);
 }
 
 $.enter = function(element, listener) {
@@ -218,7 +218,7 @@ $.enter = function(element, listener) {
 }
 
 $.delegateEvent = function(element, tag, eventName, listener) {
-    element.onclick = function(event) {
+    element['on' + eventName] = function(event) {
         var event = event || window.event;
         var target = event.target || event.srcElement;
         if (target.tagName.toLowerCase() == tag)
@@ -265,6 +265,7 @@ function ajax(url, options) {
          * GET方式向服务器发出一个请求
          * xmlHttpRequest.open("GET", "AjaxServlet?v1=" + v1 + "&v2=" + v2, true);
          */
+         options.type = options.type || "get";  //设置默认值
         if (options.type.toUpperCase() == "GET") {    
             xmlHttpRequest.open(options.type.toUpperCase(), url+'?'+data, true);
             xmlHttpRequest.onreadystatechange = options.onsuccess;
