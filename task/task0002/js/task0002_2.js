@@ -20,7 +20,7 @@ function countDown(leftTime) {
         show(leftTime);
         if (!leftTime) {
             alert("time is up");
-            return;
+            return; 
         }
         setTimeout(countDown(leftTime), 1000);
     }

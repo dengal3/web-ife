@@ -154,7 +154,7 @@ function $(selector) {
     for (var i = 0; i < querys.length; i++) {
         if(/^#.+/g.test(querys[i])) {
             parent = document.getElementById(querys[i].slice(1));
-        } else if (/^w+/g.test(querys[i])) {
+        } else if (/^\w+/g.test(querys[i])) {
             parent = parent.getElementsByTagName(querys[i]);
         } else if (/^\.(\w|\d|-|_)+/g.test(querys[i])) {
             parent = parent.getElementsByClassName(querys[i].slice(1));

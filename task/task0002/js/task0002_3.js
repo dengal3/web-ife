@@ -16,6 +16,8 @@ function ScrollBox(order, cycle, speed) {
 ScrollBox.prototype = function() {
     var constructor = ScrollBox;
     var flag = 1;   // flag是否在自动状态
+    var stopFlag = null;  //
+    var arrived = false;
     var currentScrollNum = 0;  //现在显示的页面number
     var run = function() {
         console.log("run begin");
@@ -36,7 +38,7 @@ ScrollBox.prototype = function() {
 
         scrollTool.scrollToTarget(currentScrollNum)();
         if (flag)
-            setTimeout(run, speed);
+            stopFlag = setTimeout(run, speed);
         else
             return;
     };
@@ -51,7 +53,25 @@ ScrollBox.prototype = function() {
 
     var setSpeed = function(speed) {
         this.speed = speed;
+    };
+
+    var bind = function() {
+        $.delegateEvent($('.dots')[0], 'li', 'click', function(target) {
+            var lis = document.querySelectorAll('.dots li');
+            var num;
+            for (var i = 0; i < lis.length; i++)
+                if (lis[i] == target) {
+                    num = i;
+                    break;
+                }
+            currentScrollNum = num-1;
+        });
+    };
+
+    var stop = function() {
+        clearTimeout(stopFlag);
     }
+
     var scrollTool = function() {
         var scrollToTarget = function(targetNum) {
             return function() {
@@ -59,12 +79,16 @@ ScrollBox.prototype = function() {
                 var currentPos = scrollBox.scrollLeft;
                 var endPos = targetNum * $(".pic")[0].clientWidth;
 
-                currentPos += Math.floor((endPos-currentPos)/4) || (endPos-currentPos)%4;
+                currentPos += Math.floor((endPos-currentPos)/5) || ((endPos-currentPos) > 0? 1: -1);
                 scrollBox.scrollLeft = currentPos;
                 console.log(scrollBox.scrollLeft);
 
                 if (currentPos != endPos) {
+                    arrived = false;
                     setTimeout(scrollToTarget(targetNum), 40);
+                } else {
+                    arrived = true;
+                    return;
                 }
             }
         };
@@ -77,6 +101,7 @@ ScrollBox.prototype = function() {
     return {
         constructor: constructor,
         run: run,
+        bind: bind,
         setOrder: setOrder,
         setCycle: setCycle,
         setSpeed: setSpeed
@@ -91,4 +116,5 @@ window.onload = test;
 function test() {
     var box = new ScrollBox();
     box.run();
+    box.bind();
 }
