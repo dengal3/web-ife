@@ -13,20 +13,50 @@
         <div id="task_detail" class="col">
             <div class="task-title">123</div>
             <div class="task-date">122323</div>
-            <div class="task-content">132refd </div>
+            <textarea class="task-content">132refd </textarea>
         </div>
-        <div id="catergory_list" class="col">
-
+        <div id="catergory_container" class="col">
+            <div class="all-task">所有任务<span>(11)</span></div>
+            <ul id="catergory_list">分类列表
+                <li class="catergory">百度IFE项目<span class="catergory-amount">(10)</span>
+                    <ul>
+                        <li class="sub-catergory">task1<span class="sub-catergory-amount">(6)</span></li>
+                        <li class="sub-catergory">task2<span class="sub-catergory-amount">(4)</span></li>
+                    </ul>
+                </li>
+                <li class="catergory">百度IFE项目<span class="catergory-amount">(10)</span></li>
+                <li class="catergory">百度IFE项目<span class="catergory-amount">(10)</span></li>
+                <li class="catergory">百度IFE项目<span class="catergory-amount">(10)</span></li>
+            </ul>
             <div id="add_catergory" class="tool-bar">
                 增加分类
             </div>
         </div>
-        <div id="task_list" class="col">
+        <div id="task_container" class="col">
             <div id="task_list_header" class="tool-bar">
-                
+                <ul>
+                    <li>所有</li>
+                    <li>未完成</li>
+                    <li>已完成</li>
+                </ul>
             </div>
             <div id="task_list_panel" class="panel">
-                
+                <ul id="task_list">
+                    <li class="task-date-list">2015-04-28
+                        <ul>
+                            <li class="task">task1</li>
+                            <li class="task">task2</li>
+                        </ul>
+                    </li>
+                    <li class="task-date-list">2015-04-28</li>
+                    <li class="task-date-list">2015-04-28
+                        <ul>
+                            <li class="task">task1</li>
+                            <li class="task">task2</li>
+                        </ul>
+                    </li>
+                    <li class="task-date-list">2015-04-28</li>
+                </ul>
             </div>
             <div id="add_task" class="tool-bar">
                 增加任务
