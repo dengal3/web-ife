@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>To Do List</title>
+    <link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="./css/style.css">
 </head>
 <body>
@@ -16,17 +17,10 @@
             <div class="task-content">132refd </div>
         </div>
         <div id="catergory_container" class="col">
-            <div class="all-task">所有任务<span>(11)</span></div>
-            <ul id="catergory_list">分类列表
-                <li class="catergory">百度IFE项目<span class="catergory-amount">(10)</span>
-                    <ul>
-                        <li class="sub-catergory">task1<span class="sub-catergory-amount">(6)</span></li>
-                        <li class="sub-catergory">task2<span class="sub-catergory-amount">(4)</span></li>
-                    </ul>
-                </li>
-                <li class="catergory">百度IFE项目<span class="catergory-amount">(10)</span></li>
-                <li class="catergory">百度IFE项目<span class="catergory-amount">(10)</span></li>
-                <li class="catergory">百度IFE项目<span class="catergory-amount">(10)</span></li>
+            <h4>所有任务</h4><span id="total_amount"></span>
+            <h4>分类列表</h4>
+            <ul id="catergory_list">
+                
             </ul>
             <div id="add_catergory" class="tool-bar">
                 增加分类
@@ -64,6 +58,7 @@
         </div>
     </article>
 
+    <script type="text/javascript" src="./js/util.js"></script>
     <script type="text/javascript" src="./js/data.js"></script>
     <script type="text/javascript" src="./js/index.js"></script>
 </body>

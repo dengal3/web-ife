@@ -1,11 +1,3 @@
-function init() {
-    var dotBar = $(".dots")[0];
-    $.delegateEvent(dotBar, 'li', 'click', listener);
-}
-
-function listener(target) {
-        
-}
 
 function ScrollBox(order, cycle, speed) {
     this.order = order;
@@ -107,9 +99,6 @@ ScrollBox.prototype = function() {
         setSpeed: setSpeed
     };
 }();
-
-    
-
 
 window.onload = test;
 

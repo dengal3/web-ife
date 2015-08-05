@@ -89,8 +89,8 @@ article {
     list-style: inside;
 }
 
-.all-task {
-    line-height: 3em;
+h4 {
+    line-height: 2em;
 }
 
 #task_list_panel {
