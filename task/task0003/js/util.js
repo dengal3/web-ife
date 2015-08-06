@@ -287,3 +287,11 @@ function ajax(url, options) {
         }
     }
 }
+
+function insertAfter (oldElement, newElement) {
+    if (oldElement.nextSibling) {
+        oldElement.parentNode.insertBefore(newElement, oldElement.nextSibling);
+    } else {
+        oldElement.parentNode.appendChild(newElement);
+    }
+}

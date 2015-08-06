@@ -28,12 +28,14 @@ CatergoryListModel.prototype = function() {
     }
 
     var addSubCatergory = function(subCatergory) {
-        this._catergories[ _selectedIndex ]._subCatergories.push( subCatergory );
-        this.subCatergoryAdded.notify(subCatergory);
+        subCatergory._parent = this._catergories[this._selectedIndex];
+        this._catergories[this._selectedIndex]._subCatergories.push( subCatergory );
+        this.subCatergoryAdded.notify({ subCatergory: subCatergory, selectedIndex: this._selectedIndex} );
     }
 
     var removeCatergory = function(index) {
         this._catergories.splice(index, 1);
+        this._selectedIndex = -1;
         this.catergoryRemoved.notify();
     }
 
@@ -41,7 +43,8 @@ CatergoryListModel.prototype = function() {
         constructor: constructor,
         getCatergories: getCatergories,
         addCatergory: addCatergory,
-        removeCatergory: removeCatergory
+        removeCatergory: removeCatergory,
+        addSubCatergory: addSubCatergory
     }
 }();
 
@@ -81,6 +84,10 @@ var CatergoryListView = function(model, elements) {
         _this.rebuildCatergoryList();
     })
 
+    this._model.subCatergoryAdded.attach( function (sender, newCatergory) {
+        _this.addSubCatergory(newCatergory);
+    })
+
     $.click(this._elements.addCatergoryBtn, function() {
         _this.addCatergoryBtnClicked.notify();
     });
@@ -92,14 +99,21 @@ CatergoryListView.prototype = function() {
 
     var _this = this;
 
-    var createCatergory = function(newCatergory) {
-        var catergory, removeCatergoryBtn;
+    var toggleClass = function(target, className) {
+        for (var i = 0; i < target.parentNode.childNodes.length; i++) {
+                if (target.parentNode.childNodes[i] != target)
+                    removeClass(target.parentNode.childNodes[i], className);
+            }
+        addClass(target, className);
+    }
+
+    var createCatergory = function(catergory, newCatergory) {
+        var removeCatergoryBtn;
         var doc = document;
 
         var _this = this;
 
-        catergory = doc.createElement('li');
-        catergory.className = "catergory";
+        addClass(catergory, 'catergory');
         catergory.appendChild( doc.createTextNode( newCatergory._name + '('+ newCatergory._amount + ')') );
         removeCatergoryBtn = doc.createElement( 'span' )
         removeCatergoryBtn.setAttribute('class', 'fa fa-times removeCatergoryBtn');
@@ -108,11 +122,7 @@ CatergoryListView.prototype = function() {
             e.stopPropagation();
         });
         $.click( catergory, function(e) {
-            for (var i = 0; i < e.target.parentNode.childNodes.length; i++) {
-                if (e.target.parentNode.childNodes[i] != e.target)
-                    removeClass(e.target.parentNode.childNodes[i], 'chosen');
-            }
-            addClass(e.target, 'chosen');
+            toggleClass(e.target, 'chosen');
             _this.catergoryClicked.notify(e.target);
         });
         catergory.appendChild(removeCatergoryBtn);
@@ -121,9 +131,17 @@ CatergoryListView.prototype = function() {
     }
 
     var addCatergory = function(newCatergory) {
-        var catergory = createCatergory.call(this, newCatergory );
+        var catergory = createCatergory.call(this, document.createElement('dt'), newCatergory );
 
         this._elements.catergoryList.appendChild(catergory);
+    }
+
+    var addSubCatergory = function(obj) {
+        var catergory = createCatergory.call(this, document.createElement('dd'), obj.subCatergory);
+        var targetCatergory = this._elements.catergoryList.childNodes[obj.selectedIndex];
+
+        addClass(catergory, 'sub-catergory');
+        insertAfter(targetCatergory, catergory);
     }
 
     var showCatergoryList = function() {
@@ -134,12 +152,12 @@ CatergoryListView.prototype = function() {
         this._elements.catergoryList.innerHTML = "";
 
         for (i = 0; i < catergoryList.length; i++) {
-            catergory = createCatergory.call(this, catergoryList[i]);
+            catergory = createCatergory.call(this, document.createElement('dt'), catergoryList[i]);
 
             if ( catergoryList[i]._subCatergories.length > 0) {
 
                 for (var j = 0; j < catergoryList[i]._subCatergories.length; j++) {
-                    subCatergory = createCatergory( catergoryList[i]._subCatergories[j] );
+                    subCatergory = createCatergory( document.createElement('dd'), catergoryList[i]._subCatergories[j] );
 
                 }
 
@@ -161,7 +179,8 @@ CatergoryListView.prototype = function() {
         addCatergory: addCatergory,
         showCatergoryList: showCatergoryList,
         removeCatergory: removeCatergory,
-        rebuildCatergoryList: rebuildCatergoryList
+        rebuildCatergoryList: rebuildCatergoryList,
+        addSubCatergory: addSubCatergory
     }
 }();
 
@@ -213,10 +232,11 @@ CatergoryListController.prototype = function() {
         var index, catergories = $('.catergory'); 
 
             for (index = 0; index < catergories.length; index++)
-                if (catergories[index] === targetCatergory)
-                    break;
-
-            this._model._selectedIndex = index;
+                if (catergories[index] === targetCatergory) {
+                    this._model._selectedIndex = index;
+                    return;
+                }
+            this._model._selectedIndex = -1;
     }
 
     return {
@@ -238,6 +258,7 @@ window.onload = function() {
 }
 
 var Catergory = function(name) {
+    this._parent = null;
     this._name = name;
     this._amount = 0;
     this._subCatergories = [];
