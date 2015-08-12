@@ -31,19 +31,19 @@ Model.prototype = function() {
     var addCatergory = function(catergory) {
         this._catergories.push(catergory);
         this.catergoryAdded.notify(catergory);
-        this._selectedIndex = -1;
+        this.setIndex(-1, -1);
     }
     // 增加子分类
     var addSubCatergory = function(subCatergory) {
         subCatergory._parent = this._catergories[this._selectedIndex];
         this._catergories[this._selectedIndex]._subCatergories.push( subCatergory );
         this.subCatergoryAdded.notify({ subCatergory: subCatergory, selectedIndex: this._selectedIndex} );
-        this._selectedIndex = -1;
+        this.setIndex(-1, -1);
     }
     // 删除主目录
     var removeCatergory = function(index) {
         this._catergories.splice(index, 1);
-        this._selectedIndex = -1;
+        this.setIndex(-1, -1);
         this.catergoryRemoved.notify();
     }
     // 删除子目录
@@ -114,6 +114,8 @@ var View = function(model, elements) {
     this.catergoryClicked = new Event(this);
     //当子目录被点击时
     this.subCatergoryClicked = new Event(this);
+    // 当‘增加任务’被点击时
+    this.addTaskBtnClicked = new Event(this);
 
     var _this = this;
 
@@ -140,15 +142,27 @@ var View = function(model, elements) {
     });
     /*  binding with adding taskAdded*/
     $.click(this._elements.addTaskBtn, function() {
-
+        _this.addTaskBtnClicked.notify();
     });
-
+    /* binding with showing all task */
+    $.click(this._elements.allTaskBtn, function() {
+        _this.showTaskList()
+    });
+    /* binding with showing the finished task */
+    $.click(this._elements.finishedTaskBtn, function() {
+        _this.showTaskList(undefined, true);
+    });
+    /* binding with showing the unfinished task */
+    $.click(this._elements.unfinishedTaskBtn, function() {
+        _this.showTaskList(undefined, false);
+    });
 }
 
 View.prototype = function() {
     var constructor = View;
 
     var _this = this;
+    var targetCatergoty = {};
 /*
     除目标外的兄弟元素全部移除该类
 
@@ -277,10 +291,14 @@ View.prototype = function() {
     }
 
     // 显示任务列表的视图处理
-    var showTaskList = function(catergory) {
+    var showTaskList = function(catergory, state) {
+        targetCatergoty = catergory = (catergory || targetCatergoty);    // store the target catergory
+
+        var state = undefined || state;
         var taskList = catergory._tasks,
             subCatergories = catergory._subCatergories,
             newTaskList = [];
+
         //get the tasks in the subCatergories
         for (var i = 0; i < subCatergories.length; i++)
             taskList = taskList.concat( subCatergories[i]._tasks);
@@ -301,26 +319,28 @@ View.prototype = function() {
 
         for (var i = 0; i < taskList.length; i++) {
             var task = taskList[i];
-            if (dateConvert(task._date) != taskDate) {
-                taskDate = dateConvert(task._date);
+            if (state === undefined || state === task._state) {
+                if (dateConvert(task._date) != taskDate) {
+                    taskDate = dateConvert(task._date);
 
-                taskDateLi = doc.createElement('li');
-                taskUl = doc.createElement('ul');
-                dateText = doc.createTextNode( taskDate );
+                    taskDateLi = doc.createElement('li');
+                    taskUl = doc.createElement('ul');
+                    dateText = doc.createTextNode( taskDate );
 
-                addClass(taskDateLi, 'task-date-list');
-                taskDateLi.appendChild(dateText);
-                taskDateLi.appendChild(taskUl);
+                    addClass(taskDateLi, 'task-date-list');
+                    taskDateLi.appendChild(dateText);
+                    taskDateLi.appendChild(taskUl);
 
-                this._elements.taskList.appendChild(taskDateLi);
+                    this._elements.taskList.appendChild(taskDateLi);
+                }
+                taskLi = doc.createElement('li');
+                taskTitleText = doc.createTextNode( task._name );
+
+                taskLi.appendChild( taskTitleText );
+                taskLi.id = task._id;
+
+                taskUl.appendChild(taskLi);
             }
-            taskLi = doc.createElement('li');
-            taskTitleText = doc.createTextNode( task._name );
-
-            taskLi.appendChild( taskTitleText );
-            taskLi.id = task._id;
-
-            taskUl.appendChild(taskLi);
         }
 
     }
@@ -400,7 +420,6 @@ Controller.prototype = {
 
     removeCatergory: function(targetCatergoryId) {
         var confirm = window.confirm('Are you sure to cancel the catergory?');
-
         if (confirm) {
             var index, catergories = $('.catergory'); 
 
@@ -445,7 +464,10 @@ window.onload = function() {
             'catergorys': $('.catergory'),
             'addCatergoryBtn': $('#add_catergory'),
             'addTaskBtn': $('#add_task'),
-            'taskList': $('#task_list')
+            'taskList': $('#task_list'),
+            'allTaskBtn': $('#all_task'),
+            'finishedTaskBtn': $('#finished_task'),
+            'unfinishedTaskBtn': $('#unfinished_task')
         }),
         controller = new Controller(model, view);
 
@@ -457,7 +479,7 @@ var Catergory = function(name) {
     this._amount = 0;
     this._subCatergories = [];
     this._id = Math.guid();
-    this._tasks = [new Task('111', new Date(), 'hello'), new Task('222', new Date('2015-05-11'), 'hello')];
+    this._tasks = [new Task('111', new Date(), 'hello', true), new Task('222', new Date('2015-05-11'), 'hello', false), new Task('333', new Date(), 'hello', true)];
 }
 
 var SubCatergory = function(name, parentId) {
@@ -465,9 +487,10 @@ var SubCatergory = function(name, parentId) {
     this._parentId = parentId;
 }
 
-var Task = function(name, date, content) {
+var Task = function(name, date, content, state) {
     this._name = name;
     this._date = date;
     this._content = content;
     this._id = Math.guid();
+    this._state = state; // not finished yet
 }
