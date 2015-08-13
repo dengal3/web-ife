@@ -12,9 +12,19 @@
     </header>
     <article>
         <div id="task_detail" class="col">
-            <div class="task-title">123</div>
-            <div class="task-date">122323</div>
-            <div class="task-content">132refd </div>
+            <div id='task_header'>
+                <div id="task_title">欢迎欢迎</div>
+                <div id="task_tool" class="task-tool">
+                    <span  id='task_finish_btn' class="fa fa-check-circle-o fa-lg"></span>
+                    <span id='task_edit_btn' class="fa fa-pencil-square-o fa-lg"></span>
+                </div>
+                <div id="task_edit_tool" class="task-tool unshown" >
+                    <span id='task_edited_confirm' class="fa fa-check fa-lg"></span>
+                    <span id='task_edited_cancel' class="fa fa-times fa-lg"></span>
+                </div>
+            </div>
+            <div id="task_date">热烈欢迎</div>
+            <div id="task_content">欢迎光临</div>
         </div>
         <div id="catergory_container" class="col">
             <h4>所有任务</h4><span id="total_amount"></span>
@@ -23,6 +33,7 @@
                 
             </ul>
             <div id="add_catergory" class="tool-bar">
+                <span class="fa fa-plus"></span>
                 增加分类
             </div>
         </div>
@@ -36,10 +47,11 @@
             </div>
             <div id="task_list_panel" class="panel">
                 <ul id="task_list">
-                    欢迎使用to do list
+                    <h3>欢迎使用to do list</h3>
                 </ul>
             </div>
             <div id="add_task" class="tool-bar">
+                <span class="fa fa-plus"></span>
                 增加任务
             </div>
         </div>

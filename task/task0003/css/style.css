@@ -23,6 +23,12 @@ body {
     outline: none;
 }
 
+ul,
+dl,
+ol {
+    list-style-type: none;
+}
+
 /*      custom          */
 header {
     width: 100%;
@@ -161,4 +167,21 @@ h4 {
 
 .sub-chosen {
     background-color: #89a;
+}
+
+#task_header {
+    height: 30px;
+    vertical-align: center;
+}
+
+.task-tool {
+    position: absolute;
+    right: 20px;
+}
+
+#task_edit_tool {
+}
+
+.unshown {
+    display: none;
 }
