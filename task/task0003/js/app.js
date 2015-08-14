@@ -66,8 +66,40 @@ Model.prototype = function() {
     }
     //返回选中的任务详细内容t
     var getTask = function(id) {
-        // get the chosen catergory
-        var targetCatergoty = this._selectedIndex == -1 ? this._catergories[0] : (this._selectedSubIndex == -1 ? this._catergories[this._selectedIndex] : this._catergories[this._selectedIndex]._subCatergories[this._selectedSubIndex] );
+        var task = getTargetTask.call(this, id);
+        this.taskGot.notify( task );
+        return task;
+    }
+    //增加任务到对应的目录下
+    var addTask = function(title, date, content) {
+        var targetCatergoty = getTargetCatergory.call(this);
+        var newTask = new Task(title, new Date(date), content, false);
+
+        targetCatergoty._tasks.push( newTask );
+        this.getCatergory();
+        this.getTask(newTask._id);
+    }
+    //修改已有任务内容
+    var editTask = function(id, title, date, content, state) {
+        var targetCatergoty = getTargetCatergory.call(this);
+        var task = getTargetTask.call(this, id);
+
+        task._title = title || task._title;
+        task._date = date ? new Date(date) : task._date;
+        task._content = content || task._content;
+        task._state = state || task._state;
+
+        this.getTask(id);
+    }
+
+    //get the target Catergory
+    var getTargetCatergory = function() {
+         var targetCatergoty = this._selectedIndex == -1 ? this._catergories[0] : (this._selectedSubIndex == -1 ? this._catergories[this._selectedIndex] : this._catergories[this._selectedIndex]._subCatergories[this._selectedSubIndex] );
+         return targetCatergoty;
+    }
+    // get the target task
+    var getTargetTask = function(id) {
+        var targetCatergoty = getTargetCatergory.call(this);
 
         var taskList = targetCatergoty._tasks,
             subCatergories = targetCatergoty._subCatergories;
@@ -80,13 +112,11 @@ Model.prototype = function() {
         //find the chosen task
         for (var i = 0; i < taskList.length; i++)
             if (id == taskList[i]._id) {
-                console.log (taskList[i]); //debug flag
-                _this.taskGot.notify( taskList[i] );
-                return;
+                return taskList[i];
             }
         console.error('no such a task');
-
     }
+
     //返回所需的方法接口
     return {
         constructor: constructor,
@@ -97,7 +127,9 @@ Model.prototype = function() {
         removeSubCatergory: removeSubCatergory,
         setIndex: setIndex,
         getCatergory: getCatergory,
-        getTask: getTask
+        getTask: getTask,
+        addTask: addTask,
+        editTask: editTask
     }
 }();
 
@@ -143,6 +175,14 @@ var View = function(model, elements) {
     this.addTaskBtnClicked = new Event(this);
     //当任务被点击时
     this.taskClicked = new Event(this);
+    //当任务增加确认被点击时
+    this.taskAddConfirmBtnClicked = new Event(this);
+    //当任务修改模式下 修改确认键被按下时
+    this.taskEditedConfirmBtnClicked = new Event(this);
+    //当任务修改模式下 取消按钮被按下时
+    this.taskEditedCancelBtnClicked = new Event(this);
+    //当一般模式下 确认任务已完成按钮被按下时
+    this.taskFinishBtnClicked = new Event(this);
 
     var _this = this;
 
@@ -183,11 +223,34 @@ var View = function(model, elements) {
     $.click(this._elements.unfinishedTaskBtn, function() {
         _this.showTaskList(undefined, false);
     });
+    /* bing with adding task confirm */
+    $.click(this._elements.taskAddConfirmBtn, function() {
+        _this.taskAddConfirmBtnClicked.notify();
+    });
+    /*  binding with editing task confirm */
+    $.click(this._elements.taskEditedConfirmBtn, function() {
+        _this.taskEditedConfirmBtnClicked.notify();
+    })
+    /*  binding with editing task cancel */
+    $.click(this._elements.taskEditedCancelBtn, function() {
+        _this.taskEditedCancelBtnClicked.notify();
+    });
+    /*  binding with editing task state */
+    $.click(this._elements.taskFinishBtn, function() {
+        _this.taskFinishBtnClicked.notify();
+    })
 
-    /*  binding with turning into an editable mode  */
+    /*  binding with turning into an addTasking mode  */
     $.click(this._elements.addTaskBtn, function() {
+        _this.taskAddMode();
+    });
+    /*  binding with turning into an editable model*/
+    $.click(this._elements.taskEditBtn, function() {
         _this.taskEditMode();
     });
+    $.click(this._elements.taskAddCancelBtn, function() {
+        _this.taskAddMode();
+    })
 }
 
 View.prototype = function() {
@@ -384,7 +447,7 @@ View.prototype = function() {
                 taskLi.id = task._id;
                 $.click(taskLi, function() {
                     _this.taskClicked.notify(this.id); //notify  taskClicked with task's id
-                })
+                });
 
                 taskUl.appendChild(taskLi);
             }
@@ -395,11 +458,16 @@ View.prototype = function() {
     var showTask = function(task) {
         //替换内容
         this._elements.taskTitle.innerHTML = task._title;
+        this._elements.taskTitle['data-task-id'] = task._id;
         this._elements.taskDate.innerHTML = dateConvert(task._date);
         this._elements.taskContent.innerHTML = task._content;
+
+        removeClass(this._elements.taskTool, 'unshown');
+        addClass(this._elements.taskEditTool, 'unshown');
+        addClass(this._elements.taskAddTool, 'unshown');
     }
 
-    //使任务显示为可编辑状态
+    //使任务显示为可修改编辑状态
     var taskEditMode = function() {
         console.log ('I am at the taskEditMode Function.Come and catch me ');
 
@@ -411,8 +479,15 @@ View.prototype = function() {
             contentInput = document.createElement('textarea');
         
             titleInput.value = title.innerHTML;
+            titleInput.size = '80';
+            titleInput.maxlength = '30';
+
             dateInput.value = date.innerHTML;
+            dateInput.size = '50';
+
             contentInput.value = content.innerHTML;
+            contentInput.size = '300';
+            contentInput.maxlength = '200';
 
             //clear before
             title.innerHTML = date.innerHTML = content.innerHTML = "";
@@ -420,6 +495,44 @@ View.prototype = function() {
             title.appendChild(titleInput);
             date.appendChild(dateInput);
             content.appendChild(contentInput);
+
+            removeClass(this._elements.taskEditTool, 'unshown');
+            addClass(this._elements.taskTool, 'unshown');
+            addClass(this._elements.taskAddTool, 'unshown');
+    }
+
+    //使任务显示为增加任务状态
+    var taskAddMode = function() {
+        console.log ('I am at the taskAddMode Function.Come and catch me ');
+
+        var title = this._elements.taskTitle,
+            date = this._elements.taskDate,
+            content = this._elements.taskContent,
+            titleInput = document.createElement('input'),
+            dateInput = document.createElement('input'),
+            contentInput = document.createElement('textarea');
+        
+            titleInput.placeholder = '限制输入超过80个字';
+            titleInput.size = '80';
+            titleInput.maxlength = '30';
+
+            dateInput.placeholder = '限制输入超过50个字';
+            dateInput.size = '50';
+
+            contentInput.placeholder = '限制输入超过300个字';
+            contentInput.size = '300';
+            contentInput.maxlength = '200';
+
+            //clear before
+            title.innerHTML = date.innerHTML = content.innerHTML = "";
+
+            title.appendChild(titleInput);
+            date.appendChild(dateInput);
+            content.appendChild(contentInput);
+
+            removeClass(this._elements.taskAddTool, 'unshown');
+            addClass(this._elements.taskTool, 'unshown');
+            addClass(this._elements.taskEditTool, 'unshown');
     }
 
     //日期处理函数
@@ -435,7 +548,8 @@ View.prototype = function() {
         addSubCatergory: addSubCatergory,
         showTaskList: showTaskList,
         showTask: showTask,
-        taskEditMode: taskEditMode
+        taskEditMode: taskEditMode,
+        taskAddMode: taskAddMode
     }
 }();
 
@@ -469,8 +583,20 @@ var Controller = function(model, view) {
         _this.selectTask( taskId );
     });
 
-    this._view.addTaskBtnClicked.attach( function() {
+    this._view.taskAddConfirmBtnClicked.attach( function() {
         _this.addTask();
+    });
+
+    this._view.taskEditedConfirmBtnClicked.attach( function() {
+        _this.taskEditedConfirm();
+    });
+
+    this._view.taskEditedCancelBtnClicked.attach( function() {
+        _this.taskEditedCancel();
+    });
+
+    this._view.taskFinishBtnClicked.attach( function() {
+        _this.taskFinish();
     })
 }
 
@@ -548,7 +674,34 @@ Controller.prototype = {
     },
 
     addTask: function() {
+        var title = $('#task_title input')[0].value,
+            date = $('#task_date input')[0].value,
+            content = $('#task_content textarea')[0].value;
 
+        this._model.addTask(title, date, content);
+    },
+
+    taskEditedConfirm: function() {
+        var confirm = window.confirm('Are you sure to modify the task?');
+        var newTitle = $('#task_title input')[0].value,
+            newDate = $('#task_date input')[0].value,
+            newContent = $('#task_content textarea')[0].value,
+            id = $('#task_title')['data-task-id'];
+
+        if (confirm) {
+            this._model.editTask(id, newTitle, newDate, newContent);
+        }
+        return;
+    },
+
+    taskEditedCancel: function() {
+        var id = $('#task_title')['data-task-id'];
+        this._model.getTask( id );
+    },
+
+    taskFinish: function() {
+        var id = $('#task_title')['data-task-id'];
+        this._model.editTask(id, null, null, null, true);
     }
 };
 
@@ -563,13 +716,18 @@ window.onload = function() {
             'allTaskBtn': $('#all_task'),
             'finishedTaskBtn': $('#finished_task'),
             'unfinishedTaskBtn': $('#unfinished_task'),
-            'taskFinishedBtn': $('#task_finished_btn'),
+            'taskFinishBtn': $('#task_finish_btn'),
             'taskEditBtn': $('#task_edit_btn'),
             'taskEditedConfirmBtn': $('#task_edited_confirm'),
             'taskEditedCancelBtn': $('#task_edited_cancel'),
             'taskTitle': $('#task_title'),
             'taskDate': $('#task_date'),
-            'taskContent': $('#task_content')
+            'taskContent': $('#task_content'),
+            'taskEditTool': $('#task_edit_tool'),
+            'taskAddTool': $('#task_add_tool'),
+            'taskAddConfirmBtn': $('#task_add_confirm'),
+            'taskAddCancelBtn': $('#task_add_cancel'),
+            'taskTool': $('#task_tool')
         }),
         controller = new Controller(model, view);
 

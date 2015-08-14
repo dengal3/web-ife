@@ -172,11 +172,19 @@ h4 {
 #task_header {
     height: 30px;
     vertical-align: center;
+    border-bottom: 1px solid #000;
 }
 
 .task-tool {
     position: absolute;
     right: 20px;
+    margin-top: -15px;
+}
+
+#task_date {
+    height: 30px;
+    line-height: 30px;
+    border-bottom: 1px solid #000;
 }
 
 #task_edit_tool {
@@ -185,3 +193,23 @@ h4 {
 .unshown {
     display: none;
 }
+
+input,
+textarea {
+    background-color: #89a;
+    border: none;
+    color: white;
+}
+
+::-webkit-input-placeholder { /* WebKit browsers */
+　　color:#999;
+　　}
+　　:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+　　color:#999;
+　　}
+　　::-moz-placeholder { /* Mozilla Firefox 19+ */
+　　color:#999;
+　　}
+　　:-ms-input-placeholder { /* Internet Explorer 10+ */
+　　color:#999;
+　　}
