@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>To Do List</title>
+    <link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
+</head>
+<body>
+    <header>
+        <h2>GTD Tools</h2>
+    </header>
+    <article>
+        <div id="task_detail" class="col">
+            <div id='task_header'>
+                <div id="task_title">最多只能输入30字哦</div>
+                <div id="task_tool" class="task-tool">
+                    <span  id='task_finish_btn' class="fa fa-check-circle-o fa-lg"></span>
+                    <span id='task_edit_btn' class="fa fa-pencil-square-o fa-lg"></span>
+                </div>
+                <div id="task_edit_tool" class="task-tool unshown" >
+                    <span id='task_edited_confirm' class="fa fa-check fa-lg"></span>
+                    <span id='task_edited_cancel' class="fa fa-times fa-lg"></span>
+                </div>
+                <div id="task_add_tool" class="task-tool unshown" >
+                    <span id='task_add_confirm' class="fa fa-check-circle fa-lg"></span>
+                    <span id='task_add_cancel' class="fa fa-times-circle fa-lg"></span>
+                </div>
+            </div>
+            <div id="task_date">请按yyyy-mm-dd的格式输入～</div>
+            <div id="task_content">最多只能输入200字～</div>
+        </div>
+        <div id="catergory_container" class="col">
+            <h4>所有任务</h4><span id="total_amount"></span>
+            <h4>分类列表</h4>
+            <ul id="catergory_list">
+                
+            </ul>
+            <div id="add_catergory" class="tool-bar">
+                <span class="fa fa-plus"></span>
+                增加分类
+            </div>
+        </div>
+        <div id="task_container" class="col">
+            <div id="task_list_header" class="tool-bar">
+                <ul>
+                    <li id='all_task'>所有</li>
+                    <li id='unfinished_task'>未完成</li>
+                    <li id='finished_task'>已完成</li>
+                </ul>
+            </div>
+            <div id="task_list_panel" class="panel">
+                <ul id="task_list">
+                    <h3>欢迎使用to do list</h3>
+                </ul>
+            </div>
+            <div id="add_task" class="tool-bar">
+                <span class="fa fa-plus"></span>
+                增加任务
+            </div>
+        </div>
+    </article>
+
+    <script type="text/javascript" src="./js/mvc.js"></script>
+    <script type="text/javascript" src="./js/util.js"></script>
+    <script type="text/javascript" src="./js/app.js"></script>
+</body>
+</html>
