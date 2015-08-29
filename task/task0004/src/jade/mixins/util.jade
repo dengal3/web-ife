@@ -14,10 +14,10 @@ mixin taskAddTool
         +icon-lg-btn('add_cancel', 'times-circle')
 
 mixin add(item)
-    .tool-bar(id='#add_'+item)
+    .tool-bar(id='add_'+item)
         span.fa.fa-plus
         if block
             block
 
 mixin icon-lg-btn(btn_func, icon_style)
-    span(id='#task_'+btn_func+'_btn', class='fa fa-lg '+'fa-'+icon_style)
+    span(id='task_'+btn_func+'_btn', class='fa fa-lg '+'fa-'+icon_style)

@@ -12,7 +12,7 @@ block catergoryList
             | 增加分类
 
 block taskList
-    .col#task_list_header
+    .col#task_container
         .tool-bar#task_list_header
             ul
                 li#all_task 所有
@@ -32,6 +32,10 @@ block taskDetail
             +taskTool
             +taskEditTool
             +taskAddTool
+        #task_date
+            | 请按yyyy-mm-dd的格式输入
+        #task_content
+            | 最多只能输入200字～
             
 
 
