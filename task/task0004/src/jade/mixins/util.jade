@@ -1,0 +1,23 @@
+mixin taskTool
+    .task-tool#task_tool
+        +icon-lg-btn('finish', 'check-circle-o')
+        +icon-lg-btn('edit', 'pencil-square')
+
+mixin taskEditTool
+    .task-tool.unshown#task_edit_tool
+        +icon-lg-btn('edited_confirm', 'check')
+        +icon-lg-btn('edited_cancel', 'times')
+
+mixin taskAddTool
+    .task-tool.unshown#task_add_tool
+        +icon-lg-btn('add_confirm', 'check-circle')
+        +icon-lg-btn('add_cancel', 'times-circle')
+
+mixin add(item)
+    .tool-bar(id='#add_'+item)
+        span.fa.fa-plus
+        if block
+            block
+
+mixin icon-lg-btn(btn_func, icon_style)
+    span(id='#task_'+btn_func+'_btn', class='fa fa-lg '+'fa-'+icon_style)

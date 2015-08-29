@@ -1,0 +1,38 @@
+extends ./layout/todo-layout.jade
+include ./mixins/util.jade
+
+block catergoryList
+    .col#catergory_container
+        h4 所有任务
+        span#total_amount
+            | 0
+        h4 分类列表
+        ul#catergory_list
+        +add('catergory')
+            | 增加分类
+
+block taskList
+    .col#task_list_header
+        .tool-bar#task_list_header
+            ul
+                li#all_task 所有
+                li#unfinished_task 未完成
+                li#finished_task 已完成
+        .panel#task_list_panel
+            ul#task_list
+                h3 欢迎使用to do list
+        +add('task')
+            | 增加任务
+
+block taskDetail
+    .col#task_detail
+        #task_header
+            #task_title
+                | 最多只能输入30字哦
+            +taskTool
+            +taskEditTool
+            +taskAddTool
+            
+
+
+
