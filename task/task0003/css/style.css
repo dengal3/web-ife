@@ -11,6 +11,9 @@ body {
     min-width: 800px;
     overflow-y: hidden;
     overflow-x: auto;
+    color: #ebebec;
+    background-color: #6796CE;
+    font-family: "Trebuchet MS", Tahoma, Georgia, sans-serif;
 }
 
 
@@ -33,31 +36,41 @@ ol {
 header {
     width: 100%;
     vertical-align: center;
-    background-color: #567;
 }
 
 header h2 {
     line-height: 3em;
 }
 
+article {
+    margin: 0 3em 2em 3em;
+}
+
 article #catergory_container {
     width: 280px;
-    background-color: #678;
     margin-left: -100%;
+    border: 0.4em solid #473f5d;
+    border-right: none;
+    background-color: #75809a;
+    color: #473f5d;
 }
 
 article #task_container {
     width: 280px;
-    background-color: #789;
     margin-left: -100%;
     position: relative;
     left: 280px;
+    border: 0.4em solid #473f5d;
+    background-color: #f9d016;
+    color: #473f5d;
 }
 
 article #task_detail {
-    background-color: #89a;
     width: 100%;
     padding-left: 560px;
+    border: 0.4em solid #473f5d;
+    background-color: #ebebec;
+    color: #473f5d;
 }
 
 article {
@@ -177,7 +190,7 @@ h4 {
 
 .task-tool {
     position: absolute;
-    right: 20px;
+    right: 60px;
     margin-top: -15px;
 }
 
