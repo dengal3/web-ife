@@ -101,7 +101,6 @@ function isMobilePhone(phone) {
 // 为element增加一个样式名为newClassName的新样式
 function addClass(elem, newClassName) {
     var className = elem.className;
-    console.log(className);
     if (className.indexOf(newClassName) == -1) {
         className += className === ""? newClassName: " "+newClassName;
     }

@@ -35,15 +35,21 @@ ol {
 /*      custom          */
 header {
     width: 100%;
+    padding: 0 3em 0 3em;
     vertical-align: center;
 }
 
 header h2 {
     line-height: 3em;
+    font-size: 2em;
 }
 
 article {
-    margin: 0 3em 2em 3em;
+    padding: 0 3em 0 3em;
+}
+
+article > div {
+    padding: 0.5em 1em 0.5em 1em;
 }
 
 article #catergory_container {
@@ -68,6 +74,7 @@ article #task_container {
 article #task_detail {
     width: 100%;
     padding-left: 560px;
+    padding-top: 0.5em;
     border: 0.4em solid #473f5d;
     background-color: #ebebec;
     color: #473f5d;
@@ -101,6 +108,7 @@ article {
 .catergory {
     padding: 0.6em 0 0 1em;
     list-style: inside;
+    cursor: pointer;
 }
 
 .catergory .sub-catergory {
@@ -124,12 +132,13 @@ h4 {
 }
 
 #task_list_header ul {
-    padding: 10px;
+    line-height: 2em;
 }
 
 #task_list_header ul li {
     display: inline-block;
-    margin-right: 5px;
+    margin-right: 0.5em;
+    cursor: pointer;
 }
 
 #task_list {
@@ -138,6 +147,10 @@ h4 {
 
 .task-date-list {
     padding: 0.5em;
+}
+
+.task-date-list li {
+    cursor: pointer;
 }
 
 #task_list .task {
@@ -209,9 +222,18 @@ h4 {
 
 input,
 textarea {
-    background-color: #89a;
+    background-color: #6796CE;
     border: none;
-    color: white;
+    color: #ebebec;
+    height: 1.5em;
+    line-height: 1.5em;
+    width: 94%;
+    font-weight: bold;
+}
+
+textarea {
+    height: 10em;
+    margin-top: 0.5em;
 }
 
 ::-webkit-input-placeholder { /* WebKit browsers */
