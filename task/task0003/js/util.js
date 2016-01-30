@@ -110,7 +110,10 @@ function addClass(elem, newClassName) {
 
 // 移除element中的样式oldClassName
 function removeClass(elem, oldClassName) {
-    var className = elem.className;
+    var className;
+    if (elem.className) {
+        className = elem.className;
+    } else return;
 
     if (className.indexOf(oldClassName) != -1) {
         className = className.replace(" "+oldClassName, "").replace(oldClassName, "");
@@ -293,4 +296,9 @@ function insertAfter (oldElement, newElement) {
     } else {
         oldElement.parentNode.appendChild(newElement);
     }
+}
+
+$.hasClass = function(target, className) {
+    if (target.className.indexOf(className) != -1) return true;
+    return false;
 }

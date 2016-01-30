@@ -141,6 +141,14 @@ h4 {
     cursor: pointer;
 }
 
+#task_list_header ul li.chosen {
+    color: #EBEBEC;
+    background-color: #6796CE;
+    border: 0.2em solid #473F5D;
+    padding: 0 0.3em 0 0.3em;
+    border-radius: 0.5em;
+    font-weight: bold;
+}
 #task_list {
     padding-left: 2em;
 }
@@ -173,7 +181,9 @@ h4 {
 }
 
 .chosen {
-    background-color: #789;
+    background-color: #F9D016;
+    border: 0.2em solid #473F5D;
+    border-radius: 0.3em
 }
 
 .catergory {
@@ -192,13 +202,15 @@ h4 {
 }
 
 .sub-chosen {
-    background-color: #89a;
+    background-color: #F9D016;
+    border: 0.2em solid #473F5D;
+    border-radius: 0.3em;
 }
 
 #task_header {
     height: 30px;
     vertical-align: center;
-    border-bottom: 1px solid #000;
+    border-bottom: 0.2em solid #473f5d;
 }
 
 .task-tool {
@@ -210,7 +222,7 @@ h4 {
 #task_date {
     height: 30px;
     line-height: 30px;
-    border-bottom: 1px solid #000;
+    border-bottom: 0.2em solid #473f5d;
 }
 
 #task_edit_tool {
@@ -222,9 +234,9 @@ h4 {
 
 input,
 textarea {
-    background-color: #6796CE;
+    background-color: #ebebec;
     border: none;
-    color: #ebebec;
+    color: #473f5d;
     height: 1.5em;
     line-height: 1.5em;
     width: 94%;

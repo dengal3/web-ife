@@ -16,6 +16,9 @@ var Model = function(catergories) {
     this.subCatergoryAdded = new Event(this);
     this.catergoryGot = new Event(this);
 
+    /* task list operation */
+    this.taskListGot = new Event(this);
+
     /*  task operation  */
     this.taskAdded = new Event(this);
     this.taskGot = new Event(this);
@@ -32,43 +35,39 @@ Model.prototype = function() {
     var addCatergory = function(catergory) {
         this._catergories.push(catergory);
         this.catergoryAdded.notify(catergory);
-        //this.setIndex(-1, -1);
     }
     // 增加子分类
     var addSubCatergory = function(subCatergory, mainIndex) {
         subCatergory._parent = this._catergories[mainIndex];
         this._catergories[mainIndex]._subCatergories.push( subCatergory );
-        this.subCatergoryAdded.notify({ subCatergory: subCatergory, selectedIndex: this._selectedIndex} );
-        //this.setIndex(-1, -1);
+        this.subCatergoryAdded.notify({ subCatergory: subCatergory, selectedIndex: mainIndex} );
     }
     // 删除主目录
     var removeCatergory = function(index) {
         this._catergories.splice(index, 1);
-        //this.setIndex(-1, -1);
         this.catergoryRemoved.notify();
     }
     // 删除子目录
     var removeSubCatergory = function(parentIndex, targetIndex) {
         this._catergories[parentIndex]._subCatergories.splice(targetIndex, 1);
-        //this._selectedIndex = -1;
         this.catergoryRemoved.notify();
     }
-    //设置选择的主目录下标和子目录下标
-    var setIndex = function(mainIndex, subIndex) {
-        this._selectedIndex = mainIndex;
-        this._selectedSubIndex = subIndex;
-        this.getCatergory(mainIndex, subIndex);
-    }
-    // 返回选中的目录
+    // 已得到选中的目录,通知观察者
     var getCatergory = function(mainIndex, subIndex) {
         var targetCatergoty = mainIndex == -1 ? (this._catergories.length > 0 ? this._catergories[0] : []) : (subIndex == -1 ? this._catergories[mainIndex] : this._catergories[mainIndex]._subCatergories[subIndex] );
         this.catergoryGot.notify( targetCatergoty );
     }
-    //返回选中的任务详细内容
-    var getTask = function(id) {
-        var task = getTargetTask.call(this, id);
+
+    // 已得到选中的任务列表，通知观察者
+    var getTaskList = function(mainIndex, subIndex) {
+        var targetTaskList = getTargetTaskList.call(this, mainIndex, subIndex);
+        this.taskListGot.notify(targetTaskList);
+    }
+
+    // 已得到选中的任务详细内容，通知观察者
+    var getTask = function(mainIndex, subIndex, id) {
+        var task = getTargetTask.call(this, mainIndex, subIndex, id);
         this.taskGot.notify( task );
-        return task;
     }
     //增加任务到对应的目录下
     var addTask = function(title, date, content, mainIndex, subIndex) {
@@ -76,8 +75,9 @@ Model.prototype = function() {
         var newTask = new Task(title, new Date(date), content, false);
 
         targetCatergoty._tasks.push( newTask );
-        this.getCatergory();
-        this.getTask(newTask._id);
+        this.getCatergory(mainIndex, subIndex);
+        this.getTaskList(mainIndex, subIndex)
+        this.getTask(mainIndex, subIndex, newTask._id);
     }
     //修改已有任务内容
     var editTask = function(id, title, date, content, state, mainIndex, subIndex) {
@@ -89,25 +89,41 @@ Model.prototype = function() {
         task._content = content || task._content;
         task._state = state || task._state;
 
-        this.getTask(id);
+        this.getTaskList(mainIndex, subIndex);
+        this.getTask(mainIndex, subIndex, id);
     }
 
-    //get the target Catergory
-    var getTargetCatergory = function() {
-         var targetCatergoty = this._selectedIndex == -1 ? this._catergories[0] : (this._selectedSubIndex == -1 ? this._catergories[this._selectedIndex] : this._catergories[this._selectedIndex]._subCatergories[this._selectedSubIndex] );
+    //get the target Catergory but not notify
+    var getTargetCatergory = function(mainIndex, subIndex) {
+         var targetCatergoty = mainIndex == -1 ? this._catergories[0] : (subIndex == -1 ? this._catergories[mainIndex] : this._catergories[mainIndex]._subCatergories[subIndex] );
          return targetCatergoty;
     }
+
+    // get the target task list but not notify
+    var getTargetTaskList = function(mainIndex, subIndex) {
+        var targetTaskList = [];
+        if (mainIndex == -1) {
+            each(this._catergories, function(catergory) {
+                targetTaskList = targetTaskList.concat(catergory._tasks);
+                each(catergory._subCatergories, function(subCatergory) {
+                    targetTaskList = targetTaskList.concat(subCatergory._tasks);
+                })
+            })
+        } else if (subIndex == -1) {
+            targetTaskList = targetTaskList.concat(this._catergories[mainIndex]._tasks);
+            each(this._catergories[mainIndex]._subCatergories, function(subCatergory) {
+                    targetTaskList = targetTaskList.concat(subCatergory._tasks);
+            });
+        } else {
+            targetTaskList = targetTaskList.concat(this._catergories[mainIndex]._subCatergories[subIndex]._tasks);
+        }
+        return targetTaskList;
+    };
+
     // get the target task
     var getTargetTask = function(mainIndex, subIndex, id) {
-        var targetCatergoty = getTargetCatergory.call(this, mainIndex, subIndex);
-
-        var taskList = targetCatergoty._tasks,
-            subCatergories = targetCatergoty._subCatergories;
+        var taskList = getTargetTaskList.call(this, mainIndex, subIndex);
         var _this = this;
-
-        //get the tasks in the subCatergories
-        for (var i = 0; i < subCatergories.length; i++)
-            taskList = taskList.concat( subCatergories[i]._tasks);
 
         //find the chosen task
         for (var i = 0; i < taskList.length; i++)
@@ -125,8 +141,8 @@ Model.prototype = function() {
         removeCatergory: removeCatergory,
         addSubCatergory: addSubCatergory,
         removeSubCatergory: removeSubCatergory,
-        //setIndex: setIndex,
         getCatergory: getCatergory,
+        getTaskList: getTaskList,
         getTask: getTask,
         addTask: addTask,
         editTask: editTask
@@ -200,7 +216,11 @@ var View = function(model, elements) {
     })
     //当获得目录内容时显示任务列表
     this._model.catergoryGot.attach( function(sender, targetCatergoty) {
-        _this.showTaskList(targetCatergoty);
+        //_this.showTaskList(targetCatergoty);
+    })
+    // 当获得任务列表时显示任务列表
+    this._model.taskListGot.attach(function(sender, targetTaskList) {
+        _this.showTaskList(targetTaskList);
     })
     //当获得任务内容时显示任务详细内容
     this._model.taskGot.attach( function(sender, task) {
@@ -209,36 +229,36 @@ var View = function(model, elements) {
 
     /*  binding with adding catergory */
     $.click(this._elements.addCatergoryBtn, function() {
-        _this.addCatergoryBtnClicked.notify(_this.mainIndex);
+        _this.addCatergoryBtnClicked.notify({'mainIndex': _this.mainIndex});
     });
     /* binding with showing all task */
     $.click(this._elements.allTaskBtn, function() {
-        _this.showTaskList();
+        _this.changeTaskListMode(this);
     });
     /* binding with showing the finished task */
     $.click(this._elements.finishedTaskBtn, function() {
-        _this.showTaskList(undefined, true);
+        _this.changeTaskListMode(this);
     });
     /* binding with showing the unfinished task */
     $.click(this._elements.unfinishedTaskBtn, function() {
-        _this.showTaskList(undefined, false);
+        _this.changeTaskListMode.call(_this, this);
     });
     /* bing with adding task confirm */
     $.click(this._elements.taskAddConfirmBtn, function() {
-        _this.taskAddConfirmBtnClicked.notify(_this.mainIndex, _this.subIndex);
+        _this.taskAddConfirmBtnClicked.notify({'mainIndex': _this.mainIndex, 'subIndex': _this.subIndex});
     });
     /*  binding with editing task confirm */
     $.click(this._elements.taskEditedConfirmBtn, function() {
-        _this.taskEditedConfirmBtnClicked.notify(_this.mainIndex, _this.subIndex);
+        _this.taskEditedConfirmBtnClicked.notify({'mainIndex': _this.mainIndex, 'subIndex': _this.subIndex});
     })
     /*  binding with editing task cancel */
     $.click(this._elements.taskEditedCancelBtn, function() {
-        _this.taskEditedCancelBtnClicked.notify(_this.mainIndex, _this.subIndex);
+        _this.taskEditedCancelBtnClicked.notify({'mainIndex': _this.mainIndex, 'subIndex': _this.subIndex});
     });
     /*  binding with editing task state */
     $.click(this._elements.taskFinishBtn, function() {
-        _this.taskFinishBtnClicked.notify(_this.mainIndex, _this.subIndex);
-    })
+        _this.taskFinishBtnClicked.notify({'mainIndex': _this.mainIndex, 'subIndex': _this.subIndex});
+            });
 
     /*  binding with turning into an addTasking mode  */
     $.click(this._elements.addTaskBtn, function() {
@@ -257,7 +277,7 @@ View.prototype = function() {
     var constructor = View;
 
     var _this = this;
-    var targetCatergoty = {};
+    var targetTaskList = {};
     var mainIndex = -1, subIndex = -1;  // init
 /*
     除目标外的兄弟元素全部移除该类
@@ -304,10 +324,12 @@ View.prototype = function() {
     //增加目录的视图处理
     var addCatergory = function(newCatergory) {
         this.showCatergoryList();
+        this.catergoryClicked.notify({'mainIndex': this.mainIndex, 'subIndex': this.subIndex});
     }
     //增加子目录的视图处理
     var addSubCatergory = function(obj) {
         this.showCatergoryList();
+        this.catergoryClicked.notify({'mainIndex': this.mainIndex, 'subIndex': this.subIndex});
     }
     // 显示分类目录的视图处理
     var showCatergoryList = function() {
@@ -426,26 +448,26 @@ View.prototype = function() {
     }
 
     // 显示任务列表的视图处理
-    var showTaskList = function(catergory, state) {
+    var showTaskList = function(taskList) {
         //targetCatergoty = catergory = (catergory || targetCatergoty);    // store the target catergory
-
+        targetTaskList = taskList || targetTaskList;  // store the task list
         var _this = this;
+        var state = [undefined, true, false, undefined];
+        var btns = [_this._elements.allTaskBtn, _this._elements.finishedTaskBtn, _this._elements.unfinishedTaskBtn];    // 0, 1, 2
 
-        var state = undefined || state;
-        var taskList = catergory._tasks || [],
-            subCatergories = catergory._subCatergories || [],
-            newTaskList = [];
-
-        //get the tasks in the subCatergories
-        for (var i = 0; i < subCatergories.length; i++)
-            taskList = taskList.concat( subCatergories[i]._tasks);
+        for (var i = 0; i < btns.length; i++) {
+            if ($.hasClass(btns[i], 'chosen')) {
+                break;
+            }
+        }
+        state = state[i];
 
         //sort the taskList with task date
-        taskList.sort(function(a, b) {
+        targetTaskList.sort(function(a, b) {
             return a._date > b._date;
         });
 
-        console.log(taskList); //testing
+        console.log(targetTaskList); //testing
 
         // 正式处理显示任务列表视图
         var doc = document;
@@ -454,8 +476,8 @@ View.prototype = function() {
         this._elements.taskList.innerHTML = "";
         taskDate = dateConvert(new Date(0));
 
-        for (var i = 0; i < taskList.length; i++) {
-            var task = taskList[i];
+        for (var i = 0; i < targetTaskList.length; i++) {
+            var task = targetTaskList[i];
             if (state === undefined || state === task._state) {
                 if (dateConvert(task._date) != taskDate) {
                     taskDate = dateConvert(task._date);
@@ -476,13 +498,18 @@ View.prototype = function() {
                 taskLi.appendChild( taskTitleText );
                 taskLi.id = task._id;
                 $.click(taskLi, function() {
-                    _this.taskClicked.notify(this.id); //notify  taskClicked with task's id
+                    _this.taskClicked.notify({'mainIndex': _this.mainIndex, 'subIndex': _this.subIndex, 'taskId': this.id} ); //notify  taskClicked with task's id
                 });
 
                 taskUl.appendChild(taskLi);
             }
         }
 
+    };
+    // 改变显示任务列表时的状态
+    var changeTaskListMode = function(tab) {
+        toggleClass(tab, 'chosen');
+        showTaskList.call(this);
     };
     //显示任务的详细信息：标题，日期和任务具体内容
     var showTask = function(task) {
@@ -500,6 +527,10 @@ View.prototype = function() {
     //使任务显示为可修改编辑状态
     var taskEditMode = function() {
         console.log ('I am at the taskEditMode Function.Come and catch me ');
+        if ($('#task_title')['data-task-id'] == undefined) {
+            alert('please choose a task first');
+            return;
+        }
 
         var title = this._elements.taskTitle,
             date = this._elements.taskDate,
@@ -529,11 +560,17 @@ View.prototype = function() {
             removeClass(this._elements.taskEditTool, 'unshown');
             addClass(this._elements.taskTool, 'unshown');
             addClass(this._elements.taskAddTool, 'unshown');
+
+            titleInput.focus();
     }
 
     //使任务显示为增加任务状态
     var taskAddMode = function() {
         console.log ('I am at the taskAddMode Function.Come and catch me ');
+        if (this.mainIndex == -1) {
+            alert('please choose a catergory first');
+            return;
+        }
 
         var title = this._elements.taskTitle,
             date = this._elements.taskDate,
@@ -563,6 +600,8 @@ View.prototype = function() {
             removeClass(this._elements.taskAddTool, 'unshown');
             addClass(this._elements.taskTool, 'unshown');
             addClass(this._elements.taskEditTool, 'unshown');
+
+            titleInput.focus();
     }
 
     //日期处理函数
@@ -581,7 +620,8 @@ View.prototype = function() {
         taskEditMode: taskEditMode,
         taskAddMode: taskAddMode,
         mainIndex: mainIndex,
-        subIndex: subIndex
+        subIndex: subIndex,
+        changeTaskListMode: changeTaskListMode
     }
 }();
 
@@ -591,8 +631,8 @@ var Controller = function(model, view) {
 
     var _this = this;
 
-    this._view.addCatergoryBtnClicked.attach( function(sender, mainIndex, subIndex) {
-        _this.addCatergory(mainIndex, subIndex);
+    this._view.addCatergoryBtnClicked.attach( function(sender, infos) {
+        _this.addCatergory(infos.mainIndex, infos.subIndex);
     });
 
     this._view.removeCatergoryBtnClicked.attach( function (sender, targetCatergoryId) {
@@ -611,24 +651,24 @@ var Controller = function(model, view) {
         _this.selectSubCatergory(infos.targetId, infos.parentId, infos.mainIndex, infos.subIndex);
     });
     
-    this._view.taskClicked.attach( function(sender, taskId) {
-        _this.selectTask( taskId );
+    this._view.taskClicked.attach( function(sender, infos) {
+        _this.selectTask(infos.mainIndex, infos.subIndex, infos.taskId);
     });
 
-    this._view.taskAddConfirmBtnClicked.attach( function(sender, mainIndex, subIndex) {
-        _this.addTask(mainIndex, subIndex);
+    this._view.taskAddConfirmBtnClicked.attach( function(sender, infos) {
+        _this.addTask(infos.mainIndex, infos.subIndex);
     });
 
-    this._view.taskEditedConfirmBtnClicked.attach( function() {
-        _this.taskEditedConfirm();
+    this._view.taskEditedConfirmBtnClicked.attach( function(sender, infos) {
+        _this.taskEditedConfirm(infos.mainIndex, infos.subIndex);
     });
 
-    this._view.taskEditedCancelBtnClicked.attach( function() {
-        _this.taskEditedCancel();
+    this._view.taskEditedCancelBtnClicked.attach( function(sender, infos) {
+        _this.taskEditedCancel(infos.mainIndex, infos.subIndex);
     });
 
-    this._view.taskFinishBtnClicked.attach( function() {
-        _this.taskFinish();
+    this._view.taskFinishBtnClicked.attach( function(sender, infos) {
+        _this.taskFinish(infos.mainIndex, infos.subIndex);
     })
 }
 
@@ -676,25 +716,16 @@ Controller.prototype = {
     
     selectCatergory: function (targetCatergoryId, mainIndex, subIndex) {
         this._model.getCatergory(mainIndex, subIndex);
+        this._model.getTaskList(mainIndex, subIndex);
     },
     selectSubCatergory: function(parentId, targetId, mainIndex, subIndex) {
         var index, subIndex, catergories = $('.catergory');
         this._model.getCatergory(mainIndex, subIndex);
-            /*
-            //得到父分类的索引
-            for (index = 0; index < catergories.length; index++)
-                if (catergories[index].id === parentId)
-                    break;
-            //得到子分类的索引
-            for (subIndex = 0; subIndex < catergories[index].childNodes.length; subIndex++)
-                if ( catergories[index].childNodes[subIndex].id === targetId) {
-                    this._model.setIndex(index, subIndex-1);
-                }
-            */
+        this._model.getTaskList(mainIndex, subIndex);
     },
 
-    selectTask: function(id) {
-        this._model.getTask( id );
+    selectTask: function(mainIndex, subIndex, id) {
+        this._model.getTask(mainIndex, subIndex, id);
     },
 
     addTask: function(mainIndex, subIndex) {
@@ -705,7 +736,7 @@ Controller.prototype = {
         this._model.addTask(title, date, content, mainIndex, subIndex);
     },
 
-    taskEditedConfirm: function() {
+    taskEditedConfirm: function(mainIndex, subIndex) {
         var confirm = window.confirm('Are you sure to modify the task?');
         var newTitle = $('#task_title input')[0].value,
             newDate = $('#task_date input')[0].value,
@@ -713,19 +744,19 @@ Controller.prototype = {
             id = $('#task_title')['data-task-id'];
 
         if (confirm) {
-            this._model.editTask(id, newTitle, newDate, newContent);
+            this._model.editTask(id, newTitle, newDate, newContent, undefined, mainIndex, subIndex);
         }
         return;
     },
 
-    taskEditedCancel: function() {
+    taskEditedCancel: function(mainIndex, subIndex) {
         var id = $('#task_title')['data-task-id'];
-        this._model.getTask( id );
+        this._model.getTask(mainIndex, subIndex, id);
     },
 
-    taskFinish: function() {
+    taskFinish: function(mainIndex, subIndex) {
         var id = $('#task_title')['data-task-id'];
-        this._model.editTask(id, null, null, null, true);
+        this._model.editTask(id, null, null, null, true, mainIndex, subIndex);
     }
 };
 
@@ -764,6 +795,11 @@ var Catergory = function(name) {
     this._subCatergories = [];
     this._id = Math.guid();
     this._tasks = [new Task('111', new Date(), 'hello', true), new Task('222', new Date('2015-05-11'), 'hello', false), new Task('333', new Date(), 'hello', true)];
+}
+
+Catergory.calAmount = function(catergory) {
+    var amount = 0;
+
 }
 
 var SubCatergory = function(name, parentId) {
