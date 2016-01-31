@@ -6,7 +6,6 @@
 /*    basic data model     */
 var Model = function(catergories) {
     this._catergories = catergories || [];
-    this._amount = this._catergories.length;
     //this._selectedIndex = -1;
     //this._selectedSubIndex = -1;
 
@@ -23,10 +22,22 @@ var Model = function(catergories) {
     this.taskAdded = new Event(this);
     this.taskGot = new Event(this);
 
+    /*  amount update operation */
+    this.amountUpdated = new Event(this);
 }
 
 Model.prototype = function() {
     var constructor = Model;
+    var amount = 0;
+    // 数量更新
+    var updateAmount = function() {
+        amount = 0;
+        each(this._catergories, function(catergory) {
+            amount += catergory._amount;
+        });
+        console.log(amount);
+        this.amountUpdated.notify();
+    }
     // 返回所有分类
     var getCatergories = function() {
         return [].concat(this._catergories);
@@ -34,22 +45,28 @@ Model.prototype = function() {
     //增加分类目录
     var addCatergory = function(catergory) {
         this._catergories.push(catergory);
+        updateAmount.call(this);
         this.catergoryAdded.notify(catergory);
     }
     // 增加子分类
     var addSubCatergory = function(subCatergory, mainIndex) {
         subCatergory._parent = this._catergories[mainIndex];
         this._catergories[mainIndex]._subCatergories.push( subCatergory );
+        this._catergories[mainIndex].updateAmount();
+        updateAmount.call(this);
         this.subCatergoryAdded.notify({ subCatergory: subCatergory, selectedIndex: mainIndex} );
     }
     // 删除主目录
     var removeCatergory = function(index) {
         this._catergories.splice(index, 1);
+        this._catergories.updateAmount();
         this.catergoryRemoved.notify();
     }
     // 删除子目录
     var removeSubCatergory = function(parentIndex, targetIndex) {
         this._catergories[parentIndex]._subCatergories.splice(targetIndex, 1);
+        this._catergories[parentIndex].updateAmount();
+        updateAmount.call(this);
         this.catergoryRemoved.notify();
     }
     // 已得到选中的目录,通知观察者
@@ -71,10 +88,14 @@ Model.prototype = function() {
     }
     //增加任务到对应的目录下
     var addTask = function(title, date, content, mainIndex, subIndex) {
-        var targetCatergoty = getTargetCatergory.call(this, mainIndex, subIndex);
+        var targetCatergory = getTargetCatergory.call(this, mainIndex, subIndex);
+        var targetParCatergory = getTargetCatergory.call(this, mainIndex, -1);
         var newTask = new Task(title, new Date(date), content, false);
 
-        targetCatergoty._tasks.push( newTask );
+        targetCatergory._tasks.push( newTask );
+        targetCatergory.updateAmount();
+        targetParCatergory.updateAmount();
+        updateAmount.call(this);
         this.getCatergory(mainIndex, subIndex);
         this.getTaskList(mainIndex, subIndex)
         this.getTask(mainIndex, subIndex, newTask._id);
@@ -226,6 +247,10 @@ var View = function(model, elements) {
     this._model.taskGot.attach( function(sender, task) {
         _this.showTask(task);
     })
+    // 当数量更新时
+    this._model.amountUpdated.attach( function(sender) {
+        _this.showCatergoryList();
+    })
 
     /*  binding with adding catergory */
     $.click(this._elements.addCatergoryBtn, function() {
@@ -339,8 +364,6 @@ View.prototype = function() {
 
         catergoryList = this._model._catergories;
 
-        //console.log(catergoryList);     // testing
-
         // 清空原本内容
         this._elements.catergoryList.innerHTML = "";
         for (i = 0; i < catergoryList.length; i++) {
@@ -382,7 +405,7 @@ View.prototype = function() {
                     toggleClass(this, 'chosen');
                     _this.mainIndex = _index;
                     _this.subIndex = -1;
-                    console.log("mainIndex: "+_this.mainIndex+" subIndex: " + _this.subIndex);
+                    //console.log("mainIndex: "+_this.mainIndex+" subIndex: " + _this.subIndex);
                     _this.catergoryClicked.notify({'targetCatergoryId': this.id, 'mainIndex': _this.mainIndex, 'subIndex': _this.subIndex} );
                 });
             })(i);
@@ -405,7 +428,7 @@ View.prototype = function() {
                 $.click(removeSubBtn, function(e) {
                     e.stopPropagation();
                     removeSubBtn.parentNode.parentNode.click();
-                    console.log("mainIndex: "+_this.mainIndex+" subIndex: " + _this.subIndex);
+                    //console.log("mainIndex: "+_this.mainIndex+" subIndex: " + _this.subIndex);
                     _this.removeSubCatergoryBtnClicked.notify( {'parentId': this.parentNode.parentNode.id, 'targetId': this.parentNode.id } );
                 });
 
@@ -422,7 +445,7 @@ View.prototype = function() {
                         removeParentAllClass(this, 'chosen');
                         toggleClass(this, 'sub-chosen');
                         _this.subIndex = _index;
-                        console.log("mainIndex: "+_this.mainIndex+" subIndex: " + _this.subIndex);
+                        //console.log("mainIndex: "+_this.mainIndex+" subIndex: " + _this.subIndex);
                         _this.subCatergoryClicked.notify( {'parentId': this.parentNode.id, 'targetId': this.id, 'mainIndex': _this.mainIndex, 'subIndex': _this.subIndex} );
                     });
                 })(j);
@@ -466,8 +489,6 @@ View.prototype = function() {
         targetTaskList.sort(function(a, b) {
             return a._date > b._date;
         });
-
-        console.log(targetTaskList); //testing
 
         // 正式处理显示任务列表视图
         var doc = document;
@@ -526,7 +547,6 @@ View.prototype = function() {
 
     //使任务显示为可修改编辑状态
     var taskEditMode = function() {
-        console.log ('I am at the taskEditMode Function.Come and catch me ');
         if ($('#task_title')['data-task-id'] == undefined) {
             alert('please choose a task first');
             return;
@@ -566,7 +586,6 @@ View.prototype = function() {
 
     //使任务显示为增加任务状态
     var taskAddMode = function() {
-        console.log ('I am at the taskAddMode Function.Come and catch me ');
         if (this.mainIndex == -1) {
             alert('please choose a catergory first');
             return;
@@ -791,21 +810,26 @@ window.onload = function() {
 
 var Catergory = function(name) {
     this._name = name;
-    this._amount = 0;
     this._subCatergories = [];
     this._id = Math.guid();
     this._tasks = [new Task('111', new Date(), 'hello', true), new Task('222', new Date('2015-05-11'), 'hello', false), new Task('333', new Date(), 'hello', true)];
+    this.updateAmount();
 }
 
-Catergory.calAmount = function(catergory) {
-    var amount = 0;
-
+Catergory.prototype.updateAmount = function() {
+    this._amount = this._tasks.length;
+    for (var i = 0; i < this._subCatergories.length; i++) {
+        this._amount += this._subCatergories[i]._tasks.length;
+    }
 }
+
 
 var SubCatergory = function(name, parentId) {
     Catergory.call(this, name);
     this._parentId = parentId;
 }
+
+SubCatergory.prototype = Catergory.prototype;
 
 var Task = function(title, date, content, state) {
     this._title = title;
