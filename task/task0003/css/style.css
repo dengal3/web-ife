@@ -173,6 +173,11 @@ h4 {
     line-height: 2em;
 }
 
+.task-state {
+    position: absolute;
+    right: 1em;
+}
+
 .task-content {
     width: 100%;
     height: 800px;

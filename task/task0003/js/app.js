@@ -492,7 +492,7 @@ View.prototype = function() {
 
         // 正式处理显示任务列表视图
         var doc = document;
-        var taskDateLi, taskUl, taskLi, dateText, taskTitleText, taskDate;
+        var taskDateLi, taskUl, taskLi, dateText, taskTitleText, taskDate, taskState;
         //清空原内容
         this._elements.taskList.innerHTML = "";
         taskDate = dateConvert(new Date(0));
@@ -514,9 +514,18 @@ View.prototype = function() {
                     this._elements.taskList.appendChild(taskDateLi);
                 }
                 taskLi = doc.createElement('li');
+                taskState = doc.createElement('span');
                 taskTitleText = doc.createTextNode( task._title );
 
+                if (task._state) {
+                    addClass(taskState, "fa fa-check-circle-o");
+                } else {
+                    addClass(taskState, "fa fa-exclamation-circle");
+                }
+                addClass(taskState, "task-state");
+
                 taskLi.appendChild( taskTitleText );
+                taskLi.appendChild(taskState);
                 taskLi.id = task._id;
                 $.click(taskLi, function() {
                     _this.taskClicked.notify({'mainIndex': _this.mainIndex, 'subIndex': _this.subIndex, 'taskId': this.id} ); //notify  taskClicked with task's id
