@@ -59,7 +59,7 @@ Model.prototype = function() {
     // 删除主目录
     var removeCatergory = function(index) {
         this._catergories.splice(index, 1);
-        updateAmount.call(this);
+        this._catergories.updateAmount();
         this.catergoryRemoved.notify();
     }
     // 删除子目录
